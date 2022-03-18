@@ -4,14 +4,25 @@ import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Color.rgb
 import android.graphics.Paint
+import android.view.MotionEvent
 import android.view.View
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 class Lienzo(pointer: MainActivity) : View(pointer) {
 
     var circulos = Array(150) { Circulo(this) }
+
+    val coroutine = GlobalScope.launch {
+        while (true) {
+            pointer.runOnUiThread {
+                invalidate()
+            }
+            delay(1L)
+        }
+    }
 
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
@@ -64,13 +75,9 @@ class Lienzo(pointer: MainActivity) : View(pointer) {
         canvas.drawRoundRect(0f, (height - 100f), (width + 0f), (height + 0f), 20f, 20f, p)
 
         // Snow
-        p.color = Color.WHITE
-        drawSnow(canvas, p)
-    }
-
-    fun drawSnow(canvas: Canvas, paint: Paint) = GlobalScope.launch {
         for (circulo in circulos) {
-            canvas.drawCircle(circulo.x, circulo.y, circulo.radius, paint)
+            circulo.drawSnow(canvas)
+            circulo.startSnowing(canvas)
         }
     }
 }
