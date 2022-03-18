@@ -5,31 +5,44 @@ import android.graphics.Color
 import android.graphics.Paint
 import kotlin.random.Random
 
-class Circulo(lienzo: Lienzo) {
+class Circulo() {
 
     var x: Float = 0f
     var y: Float = 0f
     var radius: Float = 0f
+    var paint = Paint().apply {
+        color = Color.WHITE
+    }
 
     init {
         // val randomValue: Double = rangeMin + (rangeMax - rangeMin) * r.nextDouble()
-        val randomX: Float = 25 + (1100 - 25) * Random.nextFloat()
-        val randomY: Float = 100 + (2100 - 100) * Random.nextFloat()
-        x = randomX
-        y = randomY
-        radius = 10f
-    }
-
-    fun startSnowing(canvas: Canvas) {
-        y += 10
-
-        if (x > canvas.height) x = 100f
+        x = 5 + (1100 - 5) * Random.nextFloat()
+        y = 5 + (2400 - 5) * Random.nextFloat()
     }
 
     fun drawSnow(canvas: Canvas) {
-        var paint = Paint()
-        paint.color = Color.WHITE
+        radius = 5f
         canvas.drawCircle(x, y, radius, paint)
     }
 
+    fun startSnowing(canvas: Canvas) {
+        y += 5f
+        if (y > canvas.height) {
+            y = 0f
+            x = 5 + (1100 - 5) * Random.nextFloat()
+        }
+    }
+
+    fun drawBlizzard(canvas: Canvas) {
+        radius = 8f
+        canvas.drawCircle(x, y, radius, paint)
+    }
+
+    fun startBlizzard(canvas: Canvas) {
+        y += 10f
+        if (y > canvas.height) {
+            y = 0f
+            x = 0 + (1100 - 0) * Random.nextFloat()
+        }
+    }
 }

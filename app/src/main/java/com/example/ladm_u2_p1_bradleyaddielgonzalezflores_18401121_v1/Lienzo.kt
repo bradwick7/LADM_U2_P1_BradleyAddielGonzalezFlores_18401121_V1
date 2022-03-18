@@ -1,32 +1,62 @@
 package com.example.ladm_u2_p1_bradleyaddielgonzalezflores_18401121_v1
 
+import android.annotation.SuppressLint
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Color.rgb
 import android.graphics.Paint
 import android.view.MotionEvent
 import android.view.View
-import kotlinx.coroutines.CoroutineStart
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
+import kotlin.random.Random
 
-class Lienzo(pointer: MainActivity) : View(pointer) {
+@SuppressLint("ViewConstructor")
+class Lienzo constructor(pointer: MainActivity) : View(pointer) {
 
-    var circulos = Array(150) { Circulo(this) }
+    var circulos = Array(300) { Circulo() }
+    var circulosBig = Array(300) { Circulo() }
+    val p = Paint()
 
+    var counter = 0
+    var decrement = 0
+    var randomB = 0
+    var blizzard = false
+
+    init {
+        randomB = Random.nextInt(5) + 2
+        randomB *= 100
+        decrement = randomB * (Random.nextInt(3) + 3)
+
+        println("SecondsBlizzard =$randomB")
+        println("Decrement =$decrement")
+    }
+
+    @DelicateCoroutinesApi
     val coroutine = GlobalScope.launch {
         while (true) {
             pointer.runOnUiThread {
+                if (randomB == counter) {
+                    blizzard = true
+                    if (decrement == 0) {
+                        blizzard = false
+                        counter = 0
+                        decrement = randomB * (Random.nextInt(3) + 1)
+                    } else {
+                        decrement--
+                    }
+                } else {
+                    counter++
+                }
+
                 invalidate()
             }
-            delay(1L)
+            delay(5L)
         }
     }
 
+    @SuppressLint("DrawAllocation")
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
-        val p = Paint()
 
         // Background
         p.style = Paint.Style.FILL
@@ -71,13 +101,29 @@ class Lienzo(pointer: MainActivity) : View(pointer) {
         canvas.drawCircle(240f, (height - 450f), 30f, p)
 
         // Ground
-        p.color = rgb(20, 70, 42)
+        p.color = Color.WHITE// dark green rgb(20, 70, 42)
         canvas.drawRoundRect(0f, (height - 100f), (width + 0f), (height + 0f), 20f, 20f, p)
 
         // Snow
         for (circulo in circulos) {
             circulo.drawSnow(canvas)
             circulo.startSnowing(canvas)
+        }
+
+        // Blizzard
+        if (blizzard) {
+            // Lamp light turns red when a blizzard occurs
+            p.color = Color.RED
+            canvas.drawCircle(240f, (height - 450f), 30f, p)
+
+            for (circulo in circulosBig) {
+                circulo.drawBlizzard(canvas)
+                circulo.startBlizzard(canvas)
+            }
+        } else {
+            // Lamp light turns yellow when there is no blizzard
+            p.color = rgb(255, 231, 85)
+            canvas.drawCircle(240f, (height - 450f), 30f, p)
         }
     }
 }
